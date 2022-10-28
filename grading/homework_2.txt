@@ -27,8 +27,8 @@
 Resetting DB After Test...
 Resetting DB After Test...
 Resetting DB After Test...
-[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.381 s <<< FAILURE! - in edu.montana.csci.csci440.homework.Homework2
-[ERROR] bulkInsertGenres  Time elapsed: 0.373 s  <<< ERROR!
+[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.273 s <<< FAILURE! - in edu.montana.csci.csci440.homework.Homework2
+[ERROR] bulkInsertGenres  Time elapsed: 0.266 s  <<< ERROR!
 java.lang.RuntimeException: org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (incomplete input)
 	at edu.montana.csci.csci440.homework.Homework2.bulkInsertGenres(Homework2.java:64)
 Caused by: org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (incomplete input)
@@ -59,8 +59,8 @@ Caused by: org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing datab
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD FAILURE
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  1.382 s
-[INFO] Finished at: 2022-10-27T12:15:08-06:00
+[INFO] Total time:  1.280 s
+[INFO] Finished at: 2022-10-28T14:04:28-06:00
 [INFO] ------------------------------------------------------------------------
 [ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.22.1:test (default-test) on project CSCI_440_Project: There are test failures.
 [ERROR] 
