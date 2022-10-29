@@ -16,7 +16,7 @@ public class Homework2 extends DBTest {
      */
     public void createTracksPlusView(){
         //TODO fill this in
-        executeDDL("CREATE VIEW tracksPlus");
+        executeDDL("CREATE VIEW tracksPlus AS SELECT tracks.*, albums.Title as AlbumTitle, artists.Name as ArtistName, genres.Name as GenreName FROM tracks JOIN albums ON tracks.AlbumID = albums.AlbumID JOIN artists ON albums.ArtistID = artists.ArtistID JOIN genres ON genres.GenreID = tracks.GenreID");
 
         List<Map<String, Object>> results = executeSQL("SELECT * FROM tracksPlus ORDER BY TrackId");
         assertEquals(3503, results.size());
@@ -36,8 +36,8 @@ public class Homework2 extends DBTest {
      */
     public void createGrammyInfoTable(){
         //TODO fill these in
-        executeDDL("create table grammy_categories");
-        executeDDL("create table grammy_infos");
+        executeDDL("create table grammy_categories(GrammyCategoryId INTEGER NOT NULL PRIMARY KEY, Name NVARCHAR(50))");
+        executeDDL("create table grammy_infos(ArtistId INTEGER NOT NULL, AlbumId INTEGER NOT NULL, TrackId INTEGER NOT NULL, GrammyCategoryId INTEGER NOT NULL, Status NVARCHAR(15))");
 
         // TEST CODE
         executeUpdate("INSERT INTO grammy_categories(Name) VALUES ('Greatest Ever');");
@@ -61,7 +61,7 @@ public class Homework2 extends DBTest {
         Integer before = (Integer) executeSQL("SELECT COUNT(*) as COUNT FROM genres").get(0).get("COUNT");
 
         //TODO fill this in
-        executeUpdate("INSERT");
+        executeUpdate("INSERT INTO genres (GenreID, Name) VALUES (26, 'Trap'), (27, 'Emo'), (28, 'Dub Step'), (29, 'Folk'), (30, 'Flamenco');");
 
         Integer after = (Integer) executeSQL("SELECT COUNT(*) as COUNT FROM genres").get(0).get("COUNT");
         assertEquals(before + 5, after);
