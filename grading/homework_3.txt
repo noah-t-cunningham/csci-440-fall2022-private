@@ -30,18 +30,18 @@ Resetting DB After Test...
 No redis found to reset
 Resetting DB After Test...
 No redis found to reset
-[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.223 s <<< FAILURE! - in edu.montana.csci.csci440.homework.Homework3
-[ERROR] useATransactionToSafelyMoveMillisecondsFromOneTrackToAnother  Time elapsed: 0.2 s  <<< ERROR!
+[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.365 s <<< FAILURE! - in edu.montana.csci.csci440.homework.Homework3
+[ERROR] useATransactionToSafelyMoveMillisecondsFromOneTrackToAnother  Time elapsed: 0.358 s  <<< ERROR!
 org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (near "TODO": syntax error)
 	at edu.montana.csci.csci440.homework.Homework3.useATransactionToSafelyMoveMillisecondsFromOneTrackToAnother(Homework3.java:36)
 
-[ERROR] selectPopularTracksAndTheirAlbums  Time elapsed: 0.006 s  <<< ERROR!
+[ERROR] selectPopularTracksAndTheirAlbums  Time elapsed: 0.002 s  <<< ERROR!
 java.lang.RuntimeException: java.sql.SQLException: The prepared statement has been finalized
 	at edu.montana.csci.csci440.homework.Homework3.selectPopularTracksAndTheirAlbums(Homework3.java:69)
 Caused by: java.sql.SQLException: The prepared statement has been finalized
 	at edu.montana.csci.csci440.homework.Homework3.selectPopularTracksAndTheirAlbums(Homework3.java:69)
 
-[ERROR] selectCustomersMeetingCriteria  Time elapsed: 0.002 s  <<< ERROR!
+[ERROR] selectCustomersMeetingCriteria  Time elapsed: 0.001 s  <<< ERROR!
 java.lang.RuntimeException: java.sql.SQLException: The prepared statement has been finalized
 	at edu.montana.csci.csci440.homework.Homework3.selectCustomersMeetingCriteria(Homework3.java:87)
 Caused by: java.sql.SQLException: The prepared statement has been finalized
@@ -60,8 +60,8 @@ Caused by: java.sql.SQLException: The prepared statement has been finalized
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD FAILURE
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  1.237 s
-[INFO] Finished at: 2022-11-28T09:23:05-07:00
+[INFO] Total time:  1.598 s
+[INFO] Finished at: 2022-11-29T08:57:04-07:00
 [INFO] ------------------------------------------------------------------------
 [ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.22.1:test (default-test) on project CSCI_440_Project: There are test failures.
 [ERROR] 
