@@ -6,15 +6,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Artist extends Model {
 
     Long artistId;
     String name;
+
+    String oldName;
 
     public Artist() {
     }
@@ -26,6 +25,58 @@ public class Artist extends Model {
 
     public List<Album> getAlbums(){
         return Album.getForArtist(artistId);
+    }
+
+    @Override
+    public boolean verify() {
+        _errors.clear(); // clear any existing errors
+        if (name == null || "".equals(name)) {
+            addError("Name can't be null or blank!");
+        }
+//        if (artistId == null) {
+//            addError("ArtistID can't be null!");
+//        }
+        return !hasErrors();
+    }
+    @Override
+    public boolean update() {
+        //TODO: fix update method for Artist
+        if (verify()) {
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "UPDATE artists SET Name=? WHERE ArtistID=? AND Name=?")) {
+                stmt.setString(1, this.getName());
+                stmt.setLong(2, this.getArtistId());
+                stmt.setString(3, this.getOldName());
+                int updatedRows = stmt.executeUpdate();
+                if (updatedRows != 1){
+                    return false;
+                }
+                return true;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean create() {
+        if (verify()) {
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "INSERT INTO artists (Name) VALUES (?)")) {
+                stmt.setString(1, this.getName());
+                stmt.executeUpdate();
+                artistId = DB.getLastID(conn);
+                return true;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        } else {
+            return false;
+        }
     }
 
     public Long getArtistId() {
@@ -40,7 +91,10 @@ public class Artist extends Model {
         return name;
     }
 
+    private String getOldName() { return oldName; }
+
     public void setName(String name) {
+        this.oldName = this.name;
         this.name = name;
     }
 
@@ -49,11 +103,13 @@ public class Artist extends Model {
     }
 
     public static List<Artist> all(int page, int count) {
+        int offset = offset(page, count);
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM artists LIMIT ?"
+                     "SELECT * FROM artists LIMIT ? OFFSET ?"
              )) {
             stmt.setInt(1, count);
+            stmt.setInt(2, offset);
             ResultSet results = stmt.executeQuery();
             List<Artist> resultList = new LinkedList<>();
             while (results.next()) {

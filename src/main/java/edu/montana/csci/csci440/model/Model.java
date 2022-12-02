@@ -39,6 +39,14 @@ public class Model {
         return _errors.size() > 0;
     }
 
+    public static int offset(int page, int count){
+        if(page == 1){
+            return 0;
+        }else{
+            return (page-1)*count;
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

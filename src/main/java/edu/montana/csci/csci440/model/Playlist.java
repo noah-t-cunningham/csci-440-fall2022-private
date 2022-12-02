@@ -18,7 +18,7 @@ public class Playlist extends Model {
     public Playlist() {
     }
 
-    private Playlist(ResultSet results) throws SQLException {
+    public Playlist(ResultSet results) throws SQLException {
         name = results.getString("Name");
         playlistId = results.getLong("PlaylistId");
     }
@@ -26,7 +26,24 @@ public class Playlist extends Model {
 
     public List<Track> getTracks(){
         // TODO implement, order by track name
-        return Collections.emptyList();
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT t.* FROM playlists\n" +
+                             "JOIN playlist_track pt on playlists.PlaylistId = pt.PlaylistId\n" +
+                             "JOIN tracks t on t.TrackId = pt.TrackId\n" +
+                             "WHERE playlists.PlaylistId == ?\n" +
+                             "ORDER BY t.Name"
+             )) {
+            stmt.setLong(1, getPlaylistId());
+            ResultSet results = stmt.executeQuery();
+            List<Track> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new Track(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
     public Long getPlaylistId() {
@@ -46,10 +63,13 @@ public class Playlist extends Model {
     }
 
     public static List<Playlist> all(int page, int count) {
+        int offset = offset(page, count);
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM playlists"
+                     "SELECT * FROM playlists LIMIT ? OFFSET ?"
              )) {
+            stmt.setInt(1, count);
+            stmt.setInt(2, offset);
             ResultSet results = stmt.executeQuery();
             List<Playlist> resultList = new LinkedList<>();
             while (results.next()) {

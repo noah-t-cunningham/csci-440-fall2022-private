@@ -30,6 +30,7 @@ public class Invoice extends Model {
         billingPostalCode = results.getString("BillingPostalCode");
         total = results.getBigDecimal("Total");
         invoiceId = results.getLong("InvoiceId");
+        billingCity = results.getString("BillingCity");
     }
 
     public List<InvoiceItem> getInvoiceItems(){
@@ -97,10 +98,14 @@ public class Invoice extends Model {
     }
 
     public static List<Invoice> all(int page, int count) {
+        int offset = offset(page, count);
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM invoices"
+                     "SELECT * FROM invoices LIMIT ? OFFSET ?"
              )) {
+            stmt.setInt(1, count);
+            stmt.setInt(2, offset);
+
             ResultSet results = stmt.executeQuery();
             List<Invoice> resultList = new LinkedList<>();
             while (results.next()) {
