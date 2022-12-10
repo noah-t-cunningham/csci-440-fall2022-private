@@ -23,7 +23,7 @@ public class Invoice extends Model {
         // new employee for insert
     }
 
-    private Invoice(ResultSet results) throws SQLException {
+    Invoice(ResultSet results) throws SQLException {
         billingAddress = results.getString("BillingAddress");
         billingState = results.getString("BillingState");
         billingCountry = results.getString("BillingCountry");
@@ -31,11 +31,39 @@ public class Invoice extends Model {
         total = results.getBigDecimal("Total");
         invoiceId = results.getLong("InvoiceId");
         billingCity = results.getString("BillingCity");
+
     }
 
     public List<InvoiceItem> getInvoiceItems(){
         //TODO implement
-        return Collections.emptyList();
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT *, t.Name as trackName, a.Title as albumName, a2.Name as artistName FROM invoice_items\n" +
+                             "JOIN tracks t on t.TrackId = invoice_items.TrackId\n" +
+                             "JOIN albums a on a.AlbumId = t.AlbumId\n" +
+                             "JOIN artists a2 on a2.ArtistId = a.ArtistId\n" +
+                             "WHERE invoice_items.InvoiceId = ?"
+             )) {
+            stmt.setLong(1, invoiceId);
+            ResultSet results = stmt.executeQuery();
+            List<InvoiceItem> resultList = new LinkedList<>();
+            while (results.next()) {
+                InvoiceItem ii = new InvoiceItem();
+                ii.setInvoiceLineId(results.getLong("InvoiceLineId"));
+                ii.setInvoiceId(results.getLong("InvoiceId"));
+                ii.setTrackId(results.getLong("TrackId"));
+                ii.setUnitPrice(results.getBigDecimal("UnitPrice"));
+                ii.setQuantity(results.getLong("Quantity"));
+                ii.setTrackName(results.getString("TrackName"));
+                ii.setAlbumName(results.getString("AlbumName"));
+                ii.setArtistName(results.getString("ArtistName"));
+                resultList.add(ii);
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+        //return Collections.emptyList();
     }
     public Customer getCustomer() {
         return null;

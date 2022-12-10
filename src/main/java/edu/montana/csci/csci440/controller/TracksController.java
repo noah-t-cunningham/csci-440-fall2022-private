@@ -1,8 +1,10 @@
 package edu.montana.csci.csci440.controller;
 
+import edu.montana.csci.csci440.model.Album;
 import edu.montana.csci.csci440.model.Artist;
 import edu.montana.csci.csci440.model.Track;
 import edu.montana.csci.csci440.util.Web;
+import redis.clients.jedis.Jedis;
 
 import java.util.List;
 
@@ -19,6 +21,10 @@ public class TracksController {
 
         post("/tracks/new", (req, resp) -> {
             Track track = new Track();
+            //
+            Album art = Album.find(Long.parseLong(req.queryParams("AlbumId")));
+            track.setAlbumId(art.getAlbumId());
+            //
             Web.putValuesInto(track, "Name", "Milliseconds", "Bytes", "UnitPrice");
             if (track.create()) {
                 Web.message("Created A Track!");

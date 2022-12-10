@@ -28,11 +28,13 @@ public class Playlist extends Model {
         // TODO implement, order by track name
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT t.* FROM playlists\n" +
-                             "JOIN playlist_track pt on playlists.PlaylistId = pt.PlaylistId\n" +
-                             "JOIN tracks t on t.TrackId = pt.TrackId\n" +
-                             "WHERE playlists.PlaylistId == ?\n" +
-                             "ORDER BY t.Name"
+                     "SELECT *, a.Title AS AlbumTitle, a2.Name AS ArtistName FROM tracks\n" +
+                             "join playlist_track pt on tracks.TrackId = pt.TrackId\n" +
+                             "join playlists p on p.PlaylistId = pt.PlaylistId\n" +
+                             "JOIN albums a on a.AlbumId = tracks.AlbumId\n" +
+                             "JOIN artists a2 on a2.ArtistId = a.ArtistId\n" +
+                             "WHERE p.PlaylistId == ?\n" +
+                             "ORDER BY tracks.Name"
              )) {
             stmt.setLong(1, getPlaylistId());
             ResultSet results = stmt.executeQuery();

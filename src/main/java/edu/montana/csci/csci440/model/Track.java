@@ -26,10 +26,14 @@ public class Track extends Model {
     private Long milliseconds;
     private Long bytes;
     private BigDecimal unitPrice;
+    //local caching
+    private String artistName;
+    private String albumTitle;
 
     public static final String REDIS_CACHE_KEY = "cs440-tracks-count-cache";
-    public static final String REDIS_CACHE_ARTISTSNAME = "cs440-tracks-artistsName-cache";
-    public static final String REDIS_CACHE_ALBUMNAME = "cs440-tracks-albumName-cache";
+    //dont think i need this V
+//    public static final String REDIS_CACHE_ARTISTSNAME = "cs440-tracks-artistsName-cache";
+//    public static final String REDIS_CACHE_ALBUMNAME = "cs440-tracks-albumName-cache";
 
 
 
@@ -50,6 +54,10 @@ public class Track extends Model {
         albumId = results.getLong("AlbumId");
         mediaTypeId = results.getLong("MediaTypeId");
         genreId = results.getLong("GenreId");
+        //local caching
+        artistName = results.getString("ArtistName");
+        albumTitle = results.getString("AlbumTitle");
+
     }
 
     @Override
@@ -147,7 +155,10 @@ public class Track extends Model {
 
     public static Track find(long i) {
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM tracks WHERE TrackId=?")) {
+             PreparedStatement stmt = conn.prepareStatement("SELECT *, a.Title AS AlbumTitle, a2.Name AS ArtistName FROM tracks\n" +
+                     "JOIN albums a on a.AlbumId = tracks.AlbumId\n" +
+                     "JOIN artists a2 on a2.ArtistId = a.ArtistId" +
+                     " WHERE TrackId=?")) {
             stmt.setLong(1, i);
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
@@ -290,31 +301,34 @@ public class Track extends Model {
     }
 
     public String getArtistName() {
-        Jedis jedis = new Jedis(); // use this class to access redis and create a cache
-        String stringValue = jedis.get("cs440-tracks-artistsName-cache");
-        if(stringValue != null){
-            return stringValue;
-        }else{
-            //cache
-            String s = getAlbum().getArtist().getName();
-            jedis.set("cs440-tracks-artistsName-cache", s);
-            return s;
-        }
-
-        //return getAlbum().getArtist().getName();
+        return artistName;
+        // im dumb
+//        Jedis jedis = new Jedis(); // use this class to access redis and create a cache
+//        String stringValue = jedis.get("cs440-tracks-artistsName-cache");
+//        if(stringValue != null){
+//            return stringValue;
+//        }else{
+//            //cache
+//            String s = getAlbum().getArtist().getName();
+//            jedis.set("cs440-tracks-artistsName-cache", s);
+//            return s;
+//        }
+//        //return getAlbum().getArtist().getName();
     }
 
     public String getAlbumTitle() {
-        Jedis jedis = new Jedis(); // use this class to access redis and create a cache
-        String stringValue = jedis.get("cs440-tracks-albumName-cache");
-        if(stringValue != null){
-            return stringValue;
-        }else{
-            //cache
-            String s = getAlbum().getTitle();
-            jedis.set("cs440-tracks-albumName-cache", s);
-            return s;
-        }
+        return albumTitle;
+        // im dumb
+//        Jedis jedis = new Jedis(); // use this class to access redis and create a cache
+//        String stringValue = jedis.get("cs440-tracks-albumName-cache");
+//        if(stringValue != null){
+//            return stringValue;
+//        }else{
+//            //cache
+//            String s = getAlbum().getTitle();
+//            jedis.set("cs440-tracks-albumName-cache", s);
+//            return s;
+//        }
     }
 
     public static List<Track> advancedSearch(int page, int count,
@@ -322,14 +336,15 @@ public class Track extends Model {
                                              Integer maxRuntime, Integer minRuntime) {
         LinkedList<Object> args = new LinkedList<>();
 
-        String query = "SELECT * FROM tracks " +
-                "JOIN albums ON tracks.AlbumId = albums.AlbumId " +
-                "WHERE name LIKE ?";
+        String query = "SELECT *, a.Title AS AlbumTitle, a2.Name AS ArtistName FROM tracks\n" +
+                "JOIN albums a on a.AlbumId = tracks.AlbumId\n" +
+                "JOIN artists a2 on a2.ArtistId = a.ArtistId\n" +
+                "WHERE tracks.name LIKE ?";
         args.add("%" + search + "%");
 
         // Here is an example of how to conditionally
         if (artistId != null) {
-            query += " AND ArtistId=? ";
+            query += " AND a.ArtistId=? ";
             args.add(artistId);
         }
         if (albumId != null) {
@@ -370,7 +385,10 @@ public class Track extends Model {
     }
 
     public static List<Track> search(int page, int count, String orderBy, String search) {
-        String query = "SELECT * FROM tracks WHERE name LIKE ? LIMIT ?";
+        String query = "SELECT *, a.Title AS AlbumTitle, a2.Name AS ArtistName FROM tracks\n" +
+                "JOIN albums a on a.AlbumId = tracks.AlbumId\n" +
+                "JOIN artists a2 on a2.ArtistId = a.ArtistId " +
+                "WHERE tracks.name LIKE ? LIMIT ?";
         search = "%" + search + "%";
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -416,7 +434,11 @@ public class Track extends Model {
         int offset = offset(page, count);
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM tracks ORDER BY " +orderBy+ " LIMIT ? OFFSET ?"
+                     "SELECT *, a.Title AS AlbumTitle, a2.Name AS ArtistName FROM tracks\n" +
+                             "JOIN albums a on a.AlbumId = tracks.AlbumId\n" +
+                             "JOIN artists a2 on a2.ArtistId = a.ArtistId\n" +
+                             "ORDER BY " + orderBy +
+                             " LIMIT ? OFFSET ?"
              )) {
             //stmt.setString(1, orderBy); Why didnt this work?
             stmt.setInt(1, count);

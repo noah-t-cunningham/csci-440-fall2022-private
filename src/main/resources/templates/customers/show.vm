@@ -29,6 +29,34 @@
     </tbody>
 </table>
 
+<h4>Invoice's</h4>
+<table>
+    <thead>
+    <tr>
+        <th>InvoiceLineId</th>
+        <th>BillingAddress</th>
+        <th>BillingCity</th>
+        <th>BillingState</th>
+        <th>BillingCountry</th>
+        <th>BillingPostalCode</th>
+        <th>Total</th>
+    </tr>
+    </thead>
+    <tbody>
+        #foreach( $i in $customer.Invoices)
+        <tr>
+            <td>$i.InvoiceId</td>
+            <td>$!i.BillingAddress</td>
+            <td>$!i.BillingCity</td>
+            <td>$!i.BillingState</td>
+            <td>$!i.BillingCountry</td>
+            <td>$!i.BillingPostalCode</td>
+            <td>$!i.Total</td>
+        </tr>
+        #end
+    </tbody>
+</table>
+
 <a href="/customers/$customer.CustomerId/edit">[Edit Customer]</a>
 <a href="/customers/$customer.CustomerId/delete">[Delete Customer]</a>
 

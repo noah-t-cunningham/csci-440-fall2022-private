@@ -1,6 +1,7 @@
 package edu.montana.csci.csci440.model;
 
 import edu.montana.csci.csci440.util.DB;
+import redis.clients.jedis.Jedis;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -150,6 +151,21 @@ public class Album extends Model {
     public static List<Album> getForArtist(Long artistId) {
         // TODO implement
         return Collections.emptyList();
+    }
+
+    @Override
+    public void delete() {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "DELETE FROM tracks WHERE AlbumId=?")) {
+            stmt.setLong(1, this.getAlbumId());
+            stmt.executeUpdate();
+            //cache invalidation
+            //Jedis jedis = new Jedis();
+            //jedis.del("cs440-tracks-count-cache");
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
 }
